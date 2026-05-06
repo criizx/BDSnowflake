@@ -1,3 +1,16 @@
+TRUNCATE TABLE
+    fact_sales,
+    dim_store,
+    dim_product,
+    dim_customer,
+    dim_seller,
+    dim_supplier,
+    dim_brand,
+    dim_category,
+    dim_pet,
+    dim_geography
+RESTART IDENTITY CASCADE;
+
 INSERT INTO dim_geography (city, state, country)
 SELECT DISTINCT store_city, store_state, store_country
 FROM mock_data
@@ -24,7 +37,8 @@ LEFT JOIN dim_pet p
     ON p.type         = m.customer_pet_type
     AND p.breed       = m.customer_pet_breed
     AND p.pet_category = m.pet_category
-ORDER BY m.customer_email;
+ORDER BY m.customer_email
+ON CONFLICT (email) DO NOTHING;
 
 INSERT INTO dim_seller (first_name, last_name, email, country, postal_code)
 SELECT DISTINCT ON (seller_email)
@@ -35,7 +49,8 @@ SELECT DISTINCT ON (seller_email)
     seller_postal_code
 FROM mock_data
 WHERE seller_email IS NOT NULL
-ORDER BY seller_email;
+ORDER BY seller_email
+ON CONFLICT (email) DO NOTHING;
 
 INSERT INTO dim_supplier (name, contact, email, phone, address, city, country)
 SELECT DISTINCT ON (supplier_name)
